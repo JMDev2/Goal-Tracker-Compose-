@@ -12,10 +12,15 @@ import androidx.compose.ui.text.font.FontWeight
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 
@@ -166,7 +171,6 @@ fun DateInputField(
         )
     )
 }
-
 @Composable
 fun AppButton(
     text: String,
@@ -175,16 +179,31 @@ fun AppButton(
     backgroundColor: Color = Color(0xFF7AC143), // default green
     textColor: Color = Color.White,
     height: Dp = 50.dp,
-    cornerRadius: Dp = 12.dp
+    cornerRadius: Dp = 12.dp,
+    leadingIcon: ImageVector? = null,
+    outlined: Boolean = false, // new flag for borders / transparent
+    borderColor: Color = Color.Gray // color of the border if outlined
 ) {
     Button(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
             .height(height),
-        colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
-        shape = RoundedCornerShape(cornerRadius)
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (outlined) Color.Transparent else backgroundColor
+        ),
+        shape = RoundedCornerShape(cornerRadius),
+        border = if (outlined) BorderStroke(1.dp, borderColor) else null
     ) {
+        if (leadingIcon != null) {
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = text,
+                tint = textColor,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        }
         Text(
             text = text,
             color = textColor,

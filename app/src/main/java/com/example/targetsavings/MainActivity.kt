@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.targetsavings.screens.CreateGoal
+import com.example.targetsavings.screens.DashboardScreen
 import com.example.targetsavings.screens.HomeScreen
 import com.example.targetsavings.ui.theme.TargetSavingsTheme
 
@@ -30,6 +31,9 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("create_goal"){
                         CreateGoal(navController)
+                    }
+                    composable("dashboard_screen"){
+                        DashboardScreen(navController)
                     }
                 }
 

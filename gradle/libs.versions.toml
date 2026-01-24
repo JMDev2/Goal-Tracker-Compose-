@@ -1,3 +1,4 @@
+
 [versions]
 agp = "8.11.2"
 kotlin = "2.0.21"
@@ -16,8 +17,9 @@ coil = "2.6.0"
 hilt = "2.51"
 hiltCompose = "1.2.0"
 
-room = "2.2.5"
-ksp = "2.0.21-1.0.26"
+roomCompilerVersion = "2.8.4"
+roomKtxVersion = "2.8.4"
+#ksp = "2.0.21-1.0.26"
 material3 =  "3 1.4.0"
 
 
@@ -38,11 +40,8 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
 #room
-androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
-androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
-androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
-
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtxVersion" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompilerVersion" }
 
 # Coroutines
 coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -66,6 +65,9 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+#ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+
+
 
 

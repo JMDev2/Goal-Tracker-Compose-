@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 
-    //add this
+//    add this
     id("dagger.hilt.android.plugin")
     kotlin("kapt")
 //    id("com.google.devtools.ksp")
@@ -16,9 +16,10 @@ android {
     namespace = "com.example.targetsavings"
     compileSdk = 36
 
+
     defaultConfig {
         applicationId = "com.example.targetsavings"
-        minSdk = 24
+        minSdk = 23
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -46,6 +47,10 @@ android {
         compose = true
     }
 }
+
+
+
+
 
 dependencies {
 
@@ -84,8 +89,9 @@ dependencies {
 
 
     //room
-    implementation(libs.androidx.room.runtime)  // Core Room runtime
-    kapt(libs.androidx.room.compiler)           // Annotation processor for Room (generates DAO code)
-    implementation(libs.androidx.room.ktx)     // Kotlin extensions, Flow & Coroutines support
-//    ksp(libs.room.compiler)
+//    implementation(libs.androidx.room.runtime)
+//    kapt(libs.androidx.room.compiler)
+//    implementation(libs.androidx.room.ktx)
+
+
 }

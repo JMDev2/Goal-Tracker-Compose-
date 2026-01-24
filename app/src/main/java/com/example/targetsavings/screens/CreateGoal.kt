@@ -1,6 +1,7 @@
 package com.example.targetsavings.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -200,7 +201,15 @@ fun CreateGoal(navController: NavHostController) {
                 AppButton(
                     text = "Save Goal",
                     onClick = {
-                        ShowToast(context,"Goal saved successfully!")
+                        if (goalName.isEmpty() || goalCategory.isEmpty() || targetAmount.isEmpty() || goalDate.isEmpty()) {
+                            navController.navigate("dashboard_screen")
+
+
+                        }else{
+                            ShowToast(context,"Goal saved successfully!")
+
+                        }
+
                     },
                     modifier = Modifier
                         .fillMaxWidth()
