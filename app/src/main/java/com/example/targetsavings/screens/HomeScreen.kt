@@ -51,46 +51,6 @@ fun HomeScreen(navController: NavHostController) {
         color = MaterialTheme.colorScheme.primary
     ) {
         Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(start = 12.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Profile",
-                                tint = Color.White,
-                                modifier = Modifier.size(28.dp)
-                            )
-
-                            Spacer(modifier = Modifier.width(80.dp))
-
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(1.dp)
-                            ) {
-                                Text(
-                                    text = "Hello There",
-                                    color = Color.White,
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                )
-                                Text(
-                                    text = "Its a good day to save",
-                                    color = Color.White.copy(alpha = 0.7f),
-                                    fontSize = 12.sp,
-                                )
-                            }
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFF272935),
-                        titleContentColor = Color.White
-                    )
-                )
-            }
-
 
         ) { paddingValues ->
             val context = LocalContext.current

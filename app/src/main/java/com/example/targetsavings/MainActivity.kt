@@ -12,7 +12,9 @@ import com.example.targetsavings.screens.CreateGoal
 import com.example.targetsavings.screens.DashboardScreen
 import com.example.targetsavings.screens.HomeScreen
 import com.example.targetsavings.ui.theme.TargetSavingsTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,17 +26,15 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 NavHost(
                     navController = navController,
-                    startDestination = "home_screen"
+                    startDestination = "dashboard_screen"
                 ) {
-                    composable("home_screen") {
-                        HomeScreen(navController)
+                    composable("dashboard_screen"){
+                        DashboardScreen(navController)
                     }
                     composable("create_goal"){
                         CreateGoal(navController)
                     }
-                    composable("dashboard_screen"){
-                        DashboardScreen(navController)
-                    }
+
                 }
 
             }

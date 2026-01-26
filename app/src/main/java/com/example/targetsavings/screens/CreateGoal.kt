@@ -46,13 +46,17 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 
 import androidx.navigation.NavHostController
+import com.example.targetsavings.data.entity.SavingsGoal
 import com.example.targetsavings.ui.components.AppButton
 import com.example.targetsavings.ui.components.AppOutlinedTextField
 import com.example.targetsavings.ui.components.DateInputField
 import com.example.targetsavings.ui.components.GoalCategoryDropdown
 import com.example.targetsavings.utils.ShowToast
+import com.example.targetsavings.viewModel.SavingsGoalViewModel
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,6 +67,9 @@ fun CreateGoal(navController: NavHostController) {
     var targetAmount by remember { mutableStateOf("") }
     var goalDate by remember { mutableStateOf("") }
     val context = LocalContext.current
+    val savingsGoalViewModel: SavingsGoalViewModel = hiltViewModel()
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
 
     Scaffold(
         topBar = {
@@ -198,24 +205,47 @@ fun CreateGoal(navController: NavHostController) {
                     )
                 }
 
+
                 AppButton(
                     text = "Save Goal",
                     onClick = {
                         if (goalName.isEmpty() || goalCategory.isEmpty() || targetAmount.isEmpty() || goalDate.isEmpty()) {
-                            navController.navigate("dashboard_screen")
+                            ShowToast(context, "Please fill all fields")
+                        } else {
+                            savingsGoalViewModel.insertGoal(
+                                SavingsGoal(
+                                    id = UUID.randomUUID().toString(),
+                                    goalName = goalName,
+                                    targetCategory = goalCategory,
+                                    targetAmount = targetAmount.toDouble(),
+                                    targetDate = goalDate
+                                )
+                            )
 
-
-                        }else{
-                            ShowToast(context,"Goal saved successfully!")
-
+                            showSuccessDialog = true
+//                            navController.navigate("dashboard_screen")
                         }
-
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
                         .align(Alignment.BottomCenter)
                 )
+
+                if (showSuccessDialog) {
+                    GoalSavedDialog(
+                        goalName = goalName,
+                        onDismiss = { showSuccessDialog = false },
+                        onGoToGoals = {
+                            showSuccessDialog = false
+                            navController.navigate("dashboard_screen") {
+                                popUpTo("dashboard_screen") { inclusive = false }
+                            }
+                        }
+                    )
+                }
+
+
             }
 
         }
