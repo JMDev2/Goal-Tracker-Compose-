@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -209,6 +210,40 @@ fun AppButton(
             color = textColor,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+@Composable
+fun AppButtonTwo(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = Color.Transparent,
+    textColor: Color = Color(0xFF363636),
+    height: Dp = 40.dp,
+    cornerRadius: Dp = 5.dp,
+    outlined: Boolean = false,
+    borderColor: Color = Color(0xFFE0E0E0),
+    fontWeight: FontWeight = FontWeight.Normal
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .wrapContentWidth()
+            .height(height),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = backgroundColor, // background for selected button
+            contentColor = textColor
+        ),
+        shape = RoundedCornerShape(cornerRadius),
+        border = if (outlined) BorderStroke(1.dp, borderColor) else null
+    ) {
+        Text(
+            text = text,
+            color = textColor,
+            fontSize = 14.sp,
+            fontWeight = fontWeight
         )
     }
 }

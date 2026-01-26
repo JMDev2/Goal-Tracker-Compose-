@@ -13,17 +13,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,7 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.targetsavings.R
 import com.example.targetsavings.ui.components.AppButton
-import com.example.targetsavings.utils.GoalProgressSlider
+import com.example.targetsavings.ui.components.AppButtonTwo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -157,10 +153,10 @@ fun DashboardScreen(navController: NavHostController) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth(0.9f) // 90% width of screen
-                            .height(250.dp)
-                            .clickable {
-                                navController.navigate("create_goal")
-                            },
+                            .height(250.dp),
+//                            .clickable {
+//                                navController.navigate("create_goal")
+//                            },
                         shape = RoundedCornerShape(12.dp),
                         elevation = CardDefaults.cardElevation(8.dp)
                     ) {
@@ -181,7 +177,7 @@ fun DashboardScreen(navController: NavHostController) {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(horizontal = 16.dp)
-                                    .padding(top = 16.dp),
+                                        .padding(top = 16.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     // Left text
@@ -252,13 +248,13 @@ fun DashboardScreen(navController: NavHostController) {
                                     )
                                 }
 
-                            Text(
-                                "0.00%",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                            )
+                                Text(
+                                    "0.00%",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                                )
 
                                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -324,7 +320,7 @@ fun DashboardScreen(navController: NavHostController) {
                                         AppButton(
                                             text = "Deposit",
                                             leadingIcon = Icons.Default.KeyboardArrowUp,
-                                            backgroundColor = Color(0xFF7AC143),
+                                            backgroundColor = Color(0xFF80BA27),
                                             onClick = { /* Deposit action */ },
                                             modifier = Modifier.weight(1f)
                                         )
@@ -344,12 +340,114 @@ fun DashboardScreen(navController: NavHostController) {
                                 }
 
 
-                            }}}
+                            }
+
+                        }
 
 
+                    }
+
+                    //the dots
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Add the dots here",
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .padding(top = 16.dp),
+                            color = Color(0xFF363636)
+                            )
+                    }
+
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .padding(top = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+
+                        // -------- Row 1: Title + Action --------
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(top = 24.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Transaction History",
+                                color = Color(0xFF363636),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            Text(
+                                text = "View All",
+                                color = Color(0xFF7AC143),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Normal,
+                                textDecoration = TextDecoration.Underline,
+                                modifier = Modifier.clickable {
+                                    navController.navigate("create_goal")
+                                }
+                            )
+                        }
+
+                        // -------- Row 2: Action buttons --------
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            AppButtonTwo(
+                                text = "All",
+                                outlined = true,
+                                backgroundColor = Color(0xFFF5FFE6),
+                                fontWeight = FontWeight.Bold,
+                                textColor = Color(0xFF363636),              // text white for contrast
+                                onClick = {}
+                            )
+
+                            AppButtonTwo(
+                                text = "Deposit",
+                                onClick = {},
+                                outlined = true,
+                            )
+
+                            AppButtonTwo(
+                                text = "Withdraw",
+                                onClick = {},
+                                outlined = true,
+                            )
+                        }
+
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .padding(top = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            AppButtonTwo(
+                                text = "Withdraw",
+                                onClick = {},
+                                outlined = true,
+                            )
+
+                        }
+                    }
                 }
             }
-
         }
     }
+
+
 }
