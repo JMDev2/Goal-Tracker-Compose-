@@ -1,5 +1,6 @@
 package com.example.targetsavings.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -63,6 +64,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
+import com.example.targetsavings.utils.ShowToast
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -225,11 +228,12 @@ fun DashboardScreen(navController: NavHostController) {
                                             progressPercent = (goal.currentAmount / goal.targetAmount)
                                                 .toFloat()
                                                 .coerceIn(0f, 1f),
-                                            onDeposit = { /* handle deposit */ },
-                                            onWithdraw = { /* handle withdraw */ }
+                                            onDeposit = { navController.navigate("deposit_screen") },
+                                            onWithdraw = { ShowToast(context, "On withdraw") }
                                         )
                                     }
                                 }
+
                             }
 
                             // Dots indicators
@@ -313,7 +317,7 @@ fun DashboardScreen(navController: NavHostController) {
                                     backgroundColor = Color(0xFFF5FFE6),
                                     fontWeight = FontWeight.Bold,
                                     textColor = Color(0xFF363636),              // text white for contrast
-                                    onClick = {}
+                                    onClick = {navController.navigate("deposit_screen")}
                                 )
 
                                 AppButtonTwo(
@@ -329,7 +333,7 @@ fun DashboardScreen(navController: NavHostController) {
                                 )
                             }
 
-
+                            //listing the transactions
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -337,11 +341,7 @@ fun DashboardScreen(navController: NavHostController) {
                                     .padding(top = 16.dp),
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                AppButtonTwo(
-                                    text = "Withdraw",
-                                    onClick = {},
-                                    outlined = true,
-                                )
+//                                TODO("Add transactions")
 
                             }
                         }
@@ -560,7 +560,7 @@ fun GoalItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = String.format("%.2f", goal.targetAmount),
+                        text = String.format("%.2f", goal.currentAmount),
                         color = Color.White,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
@@ -581,7 +581,11 @@ fun GoalItem(
                     )
                 }
 
-                // Progress percentage
+                // Compute progress percentage based on currentAmount and targetAmount
+                val progressPercent = if (goal.targetAmount > 0) {
+                    (goal.currentAmount / goal.targetAmount * 100).coerceIn(0.0, 100.0)
+                } else 0.0
+
                 Text(
                     text = "${progressPercent.toInt()}%",
                     style = MaterialTheme.typography.bodyLarge,
@@ -589,14 +593,16 @@ fun GoalItem(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                 )
-
                 LinearProgressIndicator(
-                    progress = progressPercent / 100f,
+                    progress = (progressPercent / 100).toFloat(), // convert to 0..1 range
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(8.dp)
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 16.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
                 )
+
 
                 // Target amount row
                 Row(
@@ -632,14 +638,15 @@ fun GoalItem(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
-                        .padding(top = 16.dp),//                                            .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        .padding(top = 16.dp)
+                    .pointerInput(Unit) {},
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     AppButton(
                         text = "Deposit",
                         leadingIcon = Icons.Default.KeyboardArrowUp,
                         backgroundColor = Color(0xFF80BA27),
-                        onClick = { /* Deposit action */ },
+                        onClick = onDeposit,
                         modifier = Modifier.weight(1f)
                     )
 
@@ -649,7 +656,7 @@ fun GoalItem(
                         textColor = Color(0xFFFFFFFF),  // text visible on transparent bg
                         outlined = true,                 // enable border
                         borderColor = Color.Gray,
-                        onClick = { /* Withdraw action */ },
+                        onClick = onWithdraw ,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -659,3 +666,4 @@ fun GoalItem(
         }
     }
 }
+

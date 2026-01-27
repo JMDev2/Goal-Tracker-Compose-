@@ -14,18 +14,24 @@ import android.app.DatePickerDialog
 import android.widget.DatePicker
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 
 import androidx.compose.ui.unit.sp
+import com.example.targetsavings.screens.DepositMethod
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,7 +42,9 @@ fun AppOutlinedTextField(
     onValueChange: (String) -> Unit,
     placeholderText: String,
     modifier: Modifier = Modifier,
-    prefixText: String? = null // 👈 optional prefix
+    prefixText: String? = null, // 👈 optional prefix
+    trailingIcon: (@Composable (() -> Unit))? = null // <- optional trailing icon
+
 ) {
     OutlinedTextField(
         value = value,
@@ -45,6 +53,7 @@ fun AppOutlinedTextField(
         modifier = modifier.fillMaxWidth(),
         singleLine = true,
         shape = RoundedCornerShape(8.dp),
+        trailingIcon = trailingIcon, // <- pass it to the actual TextField
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color(0xFFC6C6C6),
             unfocusedBorderColor = Color(0xFFC6C6C6),
@@ -67,12 +76,14 @@ fun AppOutlinedTextField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GoalCategoryDropdown(
+fun AppDropdown(
+    categories: List<String>,
     selectedCategory: String,
     onCategorySelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    placeholder: String = "Select a category",
+    leadingIcon: @Composable (() -> Unit)? = null // optional icon at the start of the field
 ) {
-    val categories = listOf("Traveling", "Education", "Health", "Shopping")
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
@@ -82,10 +93,13 @@ fun GoalCategoryDropdown(
     ) {
         OutlinedTextField(
             value = selectedCategory,
-            onValueChange = { onCategorySelected(it) },
+            onValueChange = {}, // read-only
             readOnly = true,
-            placeholder = { Text("Select a category") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            placeholder = { Text(placeholder) },
+            leadingIcon = leadingIcon, // <-- apply the optional leading icon here
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFFC6C6C6),
                 unfocusedBorderColor = Color(0xFFC6C6C6),
@@ -114,6 +128,8 @@ fun GoalCategoryDropdown(
         }
     }
 }
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -247,3 +263,87 @@ fun AppButtonTwo(
         )
     }
 }
+
+@Composable
+fun DepositMethodSelector(
+    selectedMethod: DepositMethod,
+    onMethodSelected: (DepositMethod) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val selectedColor = Color(0xFF7AC143)
+    val unselectedColor = Color(0xFF555454)
+
+    Column(modifier = modifier) {
+
+        Text(
+            text = "Fund From:",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color(0xFFC6C6C6)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+
+            // Account
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clickable { onMethodSelected(DepositMethod.ACCOUNT) }
+                    .padding(4.dp)
+            ) {
+                val isSelected = selectedMethod == DepositMethod.ACCOUNT
+
+                RadioButton(
+                    selected = isSelected,
+                    onClick = { onMethodSelected(DepositMethod.ACCOUNT) },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = selectedColor,
+                        unselectedColor = unselectedColor
+                    )
+                )
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                Text(
+                    text = "Account",
+                    color = if (isSelected) selectedColor else unselectedColor,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                )
+            }
+
+            // M-Pesa
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clickable { onMethodSelected(DepositMethod.MPESA) }
+                    .padding(4.dp)
+            ) {
+                val isSelected = selectedMethod == DepositMethod.MPESA
+
+                RadioButton(
+                    selected = isSelected,
+                    onClick = { onMethodSelected(DepositMethod.MPESA) },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = selectedColor,
+                        unselectedColor = unselectedColor
+                    )
+                )
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                Text(
+                    text = "M-Pesa",
+                    color = if (isSelected) selectedColor else unselectedColor,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                )
+            }
+        }
+    }
+}
+
+

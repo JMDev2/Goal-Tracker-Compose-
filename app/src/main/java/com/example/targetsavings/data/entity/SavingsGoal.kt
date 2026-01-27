@@ -6,10 +6,10 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "goal")
 data class SavingsGoal(
-    @PrimaryKey val id: String,
+    @PrimaryKey val id: String, // <-- should be Int to match GoalContribution
     val goalName: String,
     val targetCategory: String,
     val targetAmount: Double,
-    val currentAmount: Double = 0.0, // new field
+    val currentAmount: Double = 0.0, //sdgser
     val targetDate: String
 )

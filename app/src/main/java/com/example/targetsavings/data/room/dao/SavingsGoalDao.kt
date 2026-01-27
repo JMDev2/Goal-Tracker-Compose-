@@ -13,10 +13,12 @@ interface SavingsGoalDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertGoal(goal: SavingsGoal)
 
-//    @Query("SELECT * FROM goal")
-//    suspend fun getAllGoals(): List<SavingsGoal>
+
 
     @Query("SELECT * FROM goal ORDER BY targetDate ASC")
     fun getAllGoals(): Flow<List<SavingsGoal>>
+
+    @Query("UPDATE goal SET currentAmount = currentAmount + :amount WHERE id = :goalId")
+    suspend fun addToCurrentAmount(goalId: String, amount: Double)
 
 }

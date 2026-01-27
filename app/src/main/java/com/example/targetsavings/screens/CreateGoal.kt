@@ -45,15 +45,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 
 import androidx.navigation.NavHostController
 import com.example.targetsavings.data.entity.SavingsGoal
 import com.example.targetsavings.ui.components.AppButton
+import com.example.targetsavings.ui.components.AppDropdown
 import com.example.targetsavings.ui.components.AppOutlinedTextField
 import com.example.targetsavings.ui.components.DateInputField
-import com.example.targetsavings.ui.components.GoalCategoryDropdown
 import com.example.targetsavings.utils.ShowToast
 import com.example.targetsavings.viewModel.SavingsGoalViewModel
 import java.util.UUID
@@ -69,6 +70,8 @@ fun CreateGoal(navController: NavHostController) {
     val context = LocalContext.current
     val savingsGoalViewModel: SavingsGoalViewModel = hiltViewModel()
     var showSuccessDialog by remember { mutableStateOf(false) }
+    val categories = listOf("Traveling", "Education", "Health", "Shopping")
+    var selectedCategory by rememberSaveable { mutableStateOf("") }
 
 
     Scaffold(
@@ -167,9 +170,10 @@ fun CreateGoal(navController: NavHostController) {
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFFC6C6C6)
                     )
-                    GoalCategoryDropdown(
-                        selectedCategory = goalCategory,
-                        onCategorySelected = { goalCategory = it }
+                    AppDropdown(
+                        categories = categories,
+                        selectedCategory = selectedCategory,
+                        onCategorySelected = { selectedCategory = it }
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -209,22 +213,22 @@ fun CreateGoal(navController: NavHostController) {
                 AppButton(
                     text = "Save Goal",
                     onClick = {
-                        if (goalName.isEmpty() || goalCategory.isEmpty() || targetAmount.isEmpty() || goalDate.isEmpty()) {
+                        if (goalName.isBlank() || selectedCategory.isBlank() || targetAmount.isBlank() || goalDate.isBlank()) {
                             ShowToast(context, "Please fill all fields")
                         } else {
                             savingsGoalViewModel.insertGoal(
                                 SavingsGoal(
                                     id = UUID.randomUUID().toString(),
                                     goalName = goalName,
-                                    targetCategory = goalCategory,
+                                    targetCategory = selectedCategory,
                                     targetAmount = targetAmount.toDouble(),
                                     targetDate = goalDate
                                 )
                             )
 
                             showSuccessDialog = true
-//                            navController.navigate("dashboard_screen")
                         }
+
                     },
                     modifier = Modifier
                         .fillMaxWidth()
