@@ -3,6 +3,7 @@ package com.example.targetsavings.screens
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -14,9 +15,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -61,25 +64,45 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material3.Divider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.targetsavings.data.entity.GoalContribution
 import com.example.targetsavings.utils.ShowToast
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(navController: NavHostController) {
+fun DashboardScreen(navController: NavHostController, viewModel: SavingsGoalViewModel = hiltViewModel()
+) {
     val savingsGoalViewModel: SavingsGoalViewModel = hiltViewModel()
 
-    val goals by savingsGoalViewModel.goals.collectAsState() // collect StateFlow as Compose state
+    val goals by savingsGoalViewModel.goals.collectAsState()
+    val contributions by savingsGoalViewModel.contributions.collectAsState()
+
+    val selectedGoalId = goals.firstOrNull()?.id
+
+    LaunchedEffect(selectedGoalId) {
+        selectedGoalId?.let {
+            savingsGoalViewModel.loadContributions(it)
+        }
+    }
+
 
     val listState = rememberLazyListState()
     val goalsCount = goals.size
     val firstVisibleItemIndex by remember { derivedStateOf { listState.firstVisibleItemIndex } }
 
 
+
+// Transaction type state
+    val transactionType by viewModel.transactionType.collectAsState()
 
     val currentIndex by remember {
         derivedStateOf {
@@ -225,14 +248,19 @@ fun DashboardScreen(navController: NavHostController) {
                                             modifier = Modifier
                                                 .fillParentMaxWidth(0.9f)
                                                 .height(250.dp),
-                                            progressPercent = (goal.currentAmount / goal.targetAmount)
-                                                .toFloat()
-                                                .coerceIn(0f, 1f),
-                                            onDeposit = { navController.navigate("deposit_screen") },
-                                            onWithdraw = { ShowToast(context, "On withdraw") }
+                                            onDeposit = {
+                                                viewModel.setTransactionType("Deposit")
+                                                navController.navigate("deposit_screen")
+                                            },
+                                            onWithdraw = {
+                                                viewModel.setTransactionType("Withdraw")
+                                                navController.navigate("deposit_screen")
+                                            },
+                                            viewModel = viewModel
                                         )
                                     }
                                 }
+
 
                             }
 
@@ -317,7 +345,7 @@ fun DashboardScreen(navController: NavHostController) {
                                     backgroundColor = Color(0xFFF5FFE6),
                                     fontWeight = FontWeight.Bold,
                                     textColor = Color(0xFF363636),              // text white for contrast
-                                    onClick = {navController.navigate("deposit_screen")}
+                                    onClick = { navController.navigate("deposit_screen") }
                                 )
 
                                 AppButtonTwo(
@@ -334,20 +362,47 @@ fun DashboardScreen(navController: NavHostController) {
                             }
 
                             //listing the transactions
+
+                                // Contributions section
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp)
-                                    .padding(top = 16.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-//                                TODO("Add transactions")
+                                    .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(8.dp)) // border around the whole item
+                                    .background(Color.White)
+                            ){
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .wrapContentWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    if (contributions.isEmpty()) {
+                                        Text(
+                                            text = "No contributions yet",
+                                            color = Color.White.copy(alpha = 0.7f),
+                                            modifier = Modifier.align(Alignment.Center)
+                                        )
+                                    } else {
+                                        LazyColumn(
+                                            modifier = Modifier.fillMaxSize()
+                                        ) {
+                                            items(contributions) { contribution ->
+                                                Log.d(
+                                                    "ContributionsList",
+                                                    "Contribution item: ${contribution.id}"
+                                                )
+                                                ContributionItem(contribution = contribution)
+                                            }
+                                        }
+                                    }
+                                }
+
 
                             }
                         }
                     }
                 }
-            }else{
+            } else {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -491,8 +546,13 @@ fun GoalItem(
     progressPercent: Float = 0f,
     onDeposit: () -> Unit,
     onWithdraw: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: SavingsGoalViewModel
+
 ) {
+    // Transaction type state
+    val transactionType by viewModel.transactionType.collectAsState()
+
     Card(
         modifier = modifier
             .fillMaxWidth(0.9f)
@@ -639,14 +699,17 @@ fun GoalItem(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .padding(top = 16.dp)
-                    .pointerInput(Unit) {},
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        .pointerInput(Unit) {},
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     AppButton(
                         text = "Deposit",
                         leadingIcon = Icons.Default.KeyboardArrowUp,
                         backgroundColor = Color(0xFF80BA27),
-                        onClick = onDeposit,
+                        onClick = {
+                            viewModel.setTransactionType("Deposit")
+                            onDeposit()
+                        },
                         modifier = Modifier.weight(1f)
                     )
 
@@ -656,7 +719,10 @@ fun GoalItem(
                         textColor = Color(0xFFFFFFFF),  // text visible on transparent bg
                         outlined = true,                 // enable border
                         borderColor = Color.Gray,
-                        onClick = onWithdraw ,
+                        onClick = {
+                            viewModel.setTransactionType("Withdraw")
+                            onWithdraw()
+                        },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -666,4 +732,77 @@ fun GoalItem(
         }
     }
 }
+
+@Composable
+fun ContributionItem(contribution: GoalContribution) {
+    val formattedDate = remember(contribution.timestamp) {
+        java.text.SimpleDateFormat(
+            "dd MMM yyyy, hh:mm a",
+            java.util.Locale.getDefault()
+        ).format(java.util.Date(contribution.timestamp))
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Icon
+            Icon(
+                imageVector = Icons.Default.Build,
+                contentDescription = "Contribution",
+                tint = Color(0xFF4CAF50),
+                modifier = Modifier.size(32.dp)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Account/Phone
+            Text(
+                text = contribution.accountNumber ?: contribution.phoneNumber ?: "N/A",
+                color = Color.Black,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Amount + Date
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = "KES ${contribution.amount}",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = formattedDate,
+                    color = Color.Black.copy(alpha = 0.7f),
+                    fontSize = 12.sp
+                )
+            }
+        }
+
+        // Thin divider line below each item
+        Divider(
+            color = Color(0xFFE0E0E0),
+            thickness = 1.dp,
+            modifier = Modifier.fillMaxWidth()
+                .padding(start = 16.dp)
+                .padding(end = 16.dp)
+        )
+    }
+}
+
+
+
 

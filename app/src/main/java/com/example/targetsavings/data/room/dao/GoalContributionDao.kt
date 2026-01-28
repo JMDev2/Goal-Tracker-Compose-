@@ -13,9 +13,19 @@ interface GoalContributionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertContribution(contribution: GoalContribution)
 
-    @Query("SELECT * FROM goal_contributions WHERE goalId = :goalId")
+    // Fetch contributions for a specific goal, latest first
+    @Query("SELECT * FROM goal_contributions WHERE goalId = :goalId ORDER BY timestamp DESC")
     fun getContributionsForGoal(goalId: String): Flow<List<GoalContribution>>
 
-    @Query("SELECT * FROM goal_contributions")
+    // Fetch all contributions, latest first
+    @Query("SELECT * FROM goal_contributions ORDER BY timestamp DESC")
     fun getAllContributions(): Flow<List<GoalContribution>>
+
+//remove
+    @Query("SELECT COUNT(*) FROM goal_contributions")
+    suspend fun countContributions(): Int
+    @Query("SELECT goalId FROM goal_contributions")
+    suspend fun getAllGoalIds(): List<String?>
+
+
 }

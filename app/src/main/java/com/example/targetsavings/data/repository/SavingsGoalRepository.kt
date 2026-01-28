@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 class SavingsGoalRepository @Inject constructor(
     private val dao: SavingsGoalDao,
-    private val contributionDao: GoalContributionDao
+    val contributionDao: GoalContributionDao
 ) {
 
     // Insert a new goal
@@ -30,4 +30,13 @@ class SavingsGoalRepository @Inject constructor(
 
     suspend fun addToGoalCurrentAmount(goalId: String, amount: Double) =
         dao.addToCurrentAmount(goalId, amount)
+
+
+
+
+//    fetch contributions per goal
+    fun getContributionsForGoal(goalId: String): Flow<List<GoalContribution>> {
+        return contributionDao.getContributionsForGoal(goalId)
+    }
+
 }
