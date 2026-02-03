@@ -25,5 +25,6 @@ data class GoalContribution(
     val accountNumber: String? = null,
     val phoneNumber: String? = null,
     val amount: Double,
+    val transactionType: String,  // "Deposit" or "Withdraw"
     val timestamp: Long = System.currentTimeMillis()
 )

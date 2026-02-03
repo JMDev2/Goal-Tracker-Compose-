@@ -277,6 +277,7 @@ fun DepositScreen(navController: NavHostController) {
                             accountNumber = if (selectedMethod == DepositMethod.ACCOUNT) selectedAccount else null,
                             phoneNumber = if (selectedMethod == DepositMethod.MPESA) phoneNumber else null,
                             amount = amount,
+                            transactionType = savingsGoalViewModel.transactionType.value,
                             timestamp = System.currentTimeMillis()
                         )
 

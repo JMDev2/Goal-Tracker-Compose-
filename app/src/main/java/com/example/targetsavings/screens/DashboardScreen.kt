@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -61,6 +62,7 @@ import com.example.targetsavings.ui.components.AppButton
 import com.example.targetsavings.ui.components.AppButtonTwo
 import com.example.targetsavings.viewModel.SavingsGoalViewModel
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -68,7 +70,9 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
@@ -86,7 +90,8 @@ fun DashboardScreen(navController: NavHostController, viewModel: SavingsGoalView
     val goals by savingsGoalViewModel.goals.collectAsState()
     val contributions by savingsGoalViewModel.contributions.collectAsState()
 
-    val selectedGoalId = goals.firstOrNull()?.id
+    var selectedGoalIndex by remember { mutableStateOf(0) } // default first goal
+    val selectedGoalId = goals.getOrNull(selectedGoalIndex)?.id
 
     LaunchedEffect(selectedGoalId) {
         selectedGoalId?.let {
@@ -94,15 +99,13 @@ fun DashboardScreen(navController: NavHostController, viewModel: SavingsGoalView
         }
     }
 
-
     val listState = rememberLazyListState()
-    val goalsCount = goals.size
-    val firstVisibleItemIndex by remember { derivedStateOf { listState.firstVisibleItemIndex } }
-
-
+    val context = LocalContext.current
 
 // Transaction type state
     val transactionType by viewModel.transactionType.collectAsState()
+    val filterType by viewModel.filterType.collectAsState()
+
 
     val currentIndex by remember {
         derivedStateOf {
@@ -111,12 +114,12 @@ fun DashboardScreen(navController: NavHostController, viewModel: SavingsGoalView
                 (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2
 
             layoutInfo.visibleItemsInfo.minByOrNull { item ->
-                kotlin.math.abs(
-                    (item.offset + item.size / 2) - viewportCenter
-                )
+                kotlin.math.abs((item.offset + item.size / 2) - viewportCenter)
             }?.index ?: 0
         }
     }
+
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -163,7 +166,6 @@ fun DashboardScreen(navController: NavHostController, viewModel: SavingsGoalView
                 )
             }
         ) { paddingValues ->
-            val context = LocalContext.current
 
             if (!goals.isEmpty()) {
 
@@ -228,6 +230,8 @@ fun DashboardScreen(navController: NavHostController, viewModel: SavingsGoalView
                             modifier = Modifier.fillMaxWidth()
                         ) {
 
+                            var selectedGoalIndex by remember { mutableStateOf(0) } // tracks selected goal
+
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -242,12 +246,13 @@ fun DashboardScreen(navController: NavHostController, viewModel: SavingsGoalView
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    items(goals) { goal ->
+                                    itemsIndexed(goals) { index, goal ->   // <-- use itemsIndexed to get the index
                                         GoalItem(
                                             goal = goal,
                                             modifier = Modifier
-                                                .fillParentMaxWidth(0.9f)
-                                                .height(250.dp),
+                                                .fillParentMaxWidth(0.98f)
+                                                .height(250.dp)
+                                                .clickable { selectedGoalIndex = index }, // <-- clickable here
                                             onDeposit = {
                                                 viewModel.setTransactionType("Deposit")
                                                 navController.navigate("deposit_screen")
@@ -260,9 +265,8 @@ fun DashboardScreen(navController: NavHostController, viewModel: SavingsGoalView
                                         )
                                     }
                                 }
-
-
                             }
+
 
                             // Dots indicators
                             Row(
@@ -345,60 +349,58 @@ fun DashboardScreen(navController: NavHostController, viewModel: SavingsGoalView
                                     backgroundColor = Color(0xFFF5FFE6),
                                     fontWeight = FontWeight.Bold,
                                     textColor = Color(0xFF363636),              // text white for contrast
-                                    onClick = { navController.navigate("deposit_screen") }
+                                    onClick = {
+                                        viewModel.setFilterType("All")
+                                    }
                                 )
 
                                 AppButtonTwo(
                                     text = "Deposit",
-                                    onClick = {},
+                                    onClick = {
+                                        viewModel.setFilterType("Deposit")
+                                    },
                                     outlined = true,
                                 )
 
                                 AppButtonTwo(
                                     text = "Withdraw",
-                                    onClick = {},
+                                    onClick = {
+                                        viewModel.setFilterType("Withdraw")
+                                    },
                                     outlined = true,
                                 )
                             }
 
                             //listing the transactions
 
-                                // Contributions section
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(8.dp)) // border around the whole item
-                                    .background(Color.White)
-                            ){
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .wrapContentWidth()
-                                        .padding(16.dp)
-                                ) {
-                                    if (contributions.isEmpty()) {
-                                        Text(
-                                            text = "No contributions yet",
-                                            color = Color.White.copy(alpha = 0.7f),
-                                            modifier = Modifier.align(Alignment.Center)
-                                        )
-                                    } else {
-                                        LazyColumn(
-                                            modifier = Modifier.fillMaxSize()
-                                        ) {
-                                            items(contributions) { contribution ->
-                                                Log.d(
-                                                    "ContributionsList",
-                                                    "Contribution item: ${contribution.id}"
-                                                )
-                                                ContributionItem(contribution = contribution)
-                                            }
+                            val filteredContributions = remember(contributions, selectedGoalId, filterType) {
+                                contributions
+                                    .filter { it.goalId == selectedGoalId }
+                                    .filter { contribution ->
+                                        when (filterType) {
+                                            "Deposit" -> contribution.transactionType == "Deposit"
+                                            "Withdraw" -> contribution.transactionType == "Withdraw"
+                                            else -> true // "All"
                                         }
                                     }
-                                }
-
-
                             }
+
+                            val emptyMessage = remember(filterType) {
+                                when (filterType) {
+                                    "Deposit" -> "You have not made Deposits yet"
+                                    "Withdraw" -> "You have not made any withdrawals"
+                                    else ->"No transactions yet"
+                                }
+                            }
+
+
+                            ContributionsSection(
+                                contributions = filteredContributions,
+                                emptyMessage = emptyMessage,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+
+//
                         }
                     }
                 }
@@ -540,6 +542,9 @@ fun DashboardScreen(navController: NavHostController, viewModel: SavingsGoalView
 
 }
 
+
+
+
 @Composable
 fun GoalItem(
     goal: SavingsGoal,
@@ -550,9 +555,6 @@ fun GoalItem(
     viewModel: SavingsGoalViewModel
 
 ) {
-    // Transaction type state
-    val transactionType by viewModel.transactionType.collectAsState()
-
     Card(
         modifier = modifier
             .fillMaxWidth(0.9f)
@@ -733,6 +735,51 @@ fun GoalItem(
     }
 }
 
+
+@Composable
+fun ContributionsSection(
+    contributions: List<GoalContribution>,
+    emptyMessage: String,
+    modifier: Modifier = Modifier
+) {
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(8.dp))
+            .background(Color.White)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            if (contributions.isEmpty()) {
+                Text(
+                    text = emptyMessage,
+                    color = Color.Black.copy(alpha = 0.7f),
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(contributions) { contribution ->
+                        Log.d(
+                            "ContributionsList",
+                            "Contribution item: ${contribution.id}"
+                        )
+                        ContributionItem(contribution = contribution)
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+
 @Composable
 fun ContributionItem(contribution: GoalContribution) {
     val formattedDate = remember(contribution.timestamp) {
@@ -764,12 +811,13 @@ fun ContributionItem(contribution: GoalContribution) {
             Spacer(modifier = Modifier.width(12.dp))
 
             // Account/Phone
+
             Text(
                 text = contribution.accountNumber ?: contribution.phoneNumber ?: "N/A",
                 color = Color.Black,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f),
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
 
@@ -796,7 +844,8 @@ fun ContributionItem(contribution: GoalContribution) {
         Divider(
             color = Color(0xFFE0E0E0),
             thickness = 1.dp,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(start = 16.dp)
                 .padding(end = 16.dp)
         )

@@ -9,7 +9,7 @@ import com.example.targetsavings.data.room.dao.SavingsGoalDao
 
 @Database(
     entities = [SavingsGoal::class, GoalContribution::class], // <-- Add GoalContribution here
-    version = 4, // increment version when adding a new table
+    version = 5, // increment version when adding a new table
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

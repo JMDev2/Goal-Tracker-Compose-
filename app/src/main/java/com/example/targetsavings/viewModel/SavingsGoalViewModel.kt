@@ -28,6 +28,13 @@ class SavingsGoalViewModel @Inject constructor(
         _transactionType.value = type
     }
 
+    private val _filterType = MutableStateFlow("All")
+    val filterType: StateFlow<String> = _filterType
+
+    fun setFilterType(type: String) {
+        _filterType.value = type
+    }
+
     private val _contributions = MutableStateFlow<List<GoalContribution>>(emptyList())
     val contributions: StateFlow<List<GoalContribution>> = _contributions
 
